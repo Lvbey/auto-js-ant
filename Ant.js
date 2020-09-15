@@ -264,11 +264,10 @@ function randomTo(integer) {
 function closeApp(packagename) {
     var sh = new Shell(true);
     //注册一个对象运用shell命令，true(真) 以root权限运行代码，默认为falae假
-    // console.log("am force-stop"+" "+packagename)
-    sh.exec("am force-stop" + " " + aliPackagename);//执行代码运行中属于异步运行
-    sh.exec("am kill" + " " + aliPackagename);//执行代码运行中属于异步运行
+    sh.exec("am force-stop" + " " + packagename);//执行代码运行中属于异步运行
+    sh.exec("am kill" + " " + packagename);//执行代码运行中属于异步运行
     
-    toast("完全关闭支付宝");
+    toast("完全关闭"+packagename);
     //上面值com.android.browser是浏览器的包名。自行修改成想停止软件的包名
     sleep(5000);
     //给点延迟让前面的运行命令，一会软件就会关闭
