@@ -67,8 +67,9 @@ function clickPos(pos, sleepTime) {
     }else{
         sleepTime = 0;
     }
-
+    console.log("点击完成睡眠前");
     sleep(randomTo(50)+sleepTime);
+    console.log("点击完成睡眠后");
     //click(pos.x,pos.y);//这个需要Android7+
 }
 function clickPosR(posr, sleepTime) {
@@ -250,7 +251,7 @@ function getEng() {
         clickPosR(explorePosR, 50+randomTo(100));//点击一次之后紧接着再点一次,防止界面有文字提示
         clickPosR(explorePosR, 3000+randomTo(100));
 
-        waitPage(textEndsWith("蚂蚁森林"));
+        waitPage(textEndsWith("的蚂蚁森林"));
         //clickEngBtn();
         clickAllEngBts(false);
     }
@@ -301,6 +302,5 @@ function main() {
 
 
 
-//main();
+main();
 
-clickAllEngBts(false);
