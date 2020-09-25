@@ -61,15 +61,17 @@ function calcPosByRate(posR) {
 
 
 function clickPos(pos, sleepTime) {
-    //console.log("点击:(" + pos.x + "," + pos.y + ")")
-    ra.tap(pos.x+randomTo(5), pos.y+randomTo(5), 1);
+    
+    ra.touchMove(pos.x, pos.y,1)
+    ra.tap(pos.x+randomTo(3), pos.y+randomTo(3), 1);
+
     if (sleepTime > 0) {
     }else{
         sleepTime = 0;
     }
-    console.log("点击完成睡眠前");
-    sleep(randomTo(50)+sleepTime);
-    console.log("点击完成睡眠后");
+    sleepTime = randomTo(50)+sleepTime;
+    //console.log("点击:(" + pos.x + "," + pos.y + "), sleep:"+sleepTime)
+    sleep(sleepTime);
     //click(pos.x,pos.y);//这个需要Android7+
 }
 function clickPosR(posr, sleepTime) {
@@ -94,46 +96,6 @@ function waitPage(uiSelectorOnNextPage) {
     sleep(500+randomTo(100));//容错
 }
 
-
-
-
-/**
- * 点击能量球(弃用了)
- */
-function clickEngBtn() {
-    var totalQty = 0;
-    var btns = textStartsWith(eng_btn_flag);
-    if (btns.exists()) {
-        btns.find().forEach(function (item) {
-            totalQty += parseInt(item.text().replace(/\D/g, ""));
-            var posb = item.bounds();
-            clickPos(new Pos(posb.centerX(), posb.centerY()), 1000);
-        });
-    }
-
-
-    var myfriendName = friendName();
-
-    if (totalQty == 0) {
-        //没有收取到能量(因为如果对方有可以帮忙收取的能量，还是能从逛一逛进入的)
-
-        var index = getIndexByName(myfriendName);
-        if (index >= 0) {
-            var qtys = nomoreFriendEngMap[index].qtys;
-            if (qtys == 3) {
-                //一旦有朋友3次没有收到能量，说明已经没有能量了
-                continueFlag = false;
-            }
-            nomoreFriendEngMap[index].qtys = qtys + 1;
-        }
-        else {
-            //第一次进入
-            nomoreFriendEngMap.push(new FriendEng(myfriendName, nomoreEngCount));
-        }
-    } else {
-        friendEngMap.push(new FriendEng(myfriendName, totalQty));
-    }
-}
 
 
 
@@ -192,6 +154,12 @@ function taQty() {
 
 function clickAllEngBts(self) {
     
+    if(!self){
+        console.log("好友的蚂蚁森林");
+    }else{
+        console.log("自己的蚂蚁森林");
+    }
+    
     var taView = textEndsWith("成就");
     if (taView.exists()) {
         var clickCount = 0;
@@ -201,22 +169,26 @@ function clickAllEngBts(self) {
             var posb = child.bounds();
             if (typeof (text) === "string" && text.indexOf(eng_btn_flag) >= 0) {
                 //可以收取的能量
-                clickPos(new Pos(posb.centerX(), posb.centerY()));
-                clickPos(new Pos(posb.centerX(), posb.centerY()),1500);                
+                clickPos(new Pos(posb.centerX(), posb.centerY()),700);
+                clickPos(new Pos(posb.centerX(), posb.centerY()),600);                
                 clickCount++;
             } else if (("" + text).length == 1) {
                 //帮忙给好友收取或者是好友自己的能量球
                 //console.log("点击帮TA收取或者是点击不可收取能量");
-                clickPos(new Pos(posb.centerX(), posb.centerY()));
-                clickPos(new Pos(posb.centerX(), posb.centerY()),500);
+                clickPos(new Pos(posb.centerX(), posb.centerY()),700);
+                clickPos(new Pos(posb.centerX(), posb.centerY()),600);
             } else {
                 //console.log("不点击这个按钮");
             }
         });
-        console.log("在"+friendName()+"蚂蚁森林点击了"+clickCount+"次");
+        console.log("在"+friendName()+"蚂蚁森林有效点击了"+clickCount+"次");
 
     } else {
-        tLog("没有能量了，即将退出程序...")
+        if(!self && desc("返回").exists()){
+            tLog("没有能量了，即将退出...");
+            var posb = desc("返回").findOne().bounds();
+            clickPos(new Pos(posb.centerX(), posb.centerY()),500);
+        }
         continueFlag = false;
     }
 }
@@ -244,15 +216,16 @@ function enterMyMainPage() {
 }
 
 
-function getEng() {
+function getFriendsEng() {
     continueFlag = true;
+
     while (continueFlag) {
         //点击逛一逛
-        clickPosR(explorePosR, 50+randomTo(100));//点击一次之后紧接着再点一次,防止界面有文字提示
-        clickPosR(explorePosR, 3000+randomTo(100));
-
-        waitPage(textEndsWith("的蚂蚁森林"));
-        //clickEngBtn();
+        clickPosR(explorePosR,500);//点击一次之后紧接着再点一次,防止界面有文字提示
+        clickPosR(explorePosR,3000);
+        clickPosR(new PosR(0,1),200);//好像有个bug，点击的时候会停留在上一次点击的位置，这里点击一下左下角
+        
+        waitPage(textEndsWith("蚂蚁森林"));
         clickAllEngBts(false);
     }
 }
@@ -272,29 +245,39 @@ function closeApp(packagename) {
     //上面值com.android.browser是浏览器的包名。自行修改成想停止软件的包名
     sleep(5000);
     //给点延迟让前面的运行命令，一会软件就会关闭
-    sh.exit;
-    sleep(2000);
+    sh.exit();
+    sleep(5000);
     //退出Shell命令，正在执行的命令会被强制退出。所以上面加延迟
 
 }
 
-
-function main() {
-
+function unlock(){
     if (!device.isScreenOn()) {
         device.wakeUp();
         sleep(2000);
         ra.swipe(maxWidth / 2, maxHeight - 300, maxWidth / 2, 50, 500);
         sleep(1000);
     }
+}
 
-    //每次运行前，先完全终止支付宝
-    closeApp(aliPackagename);
+
+function main() {
+
+    unlock();
+    
+    //closeApp(aliPackagename);//每次运行前，先完全终止支付宝
 
     enterMyMainPage();
-    getEng();
+    getFriendsEng();
 
     closeApp(aliPackagename);
+
+    events.on('exit',function(){
+        ra.exit();
+        console.log("退出root");
+    })
+
+    console.log("退出脚本");
     exit();
 
 }
@@ -303,4 +286,3 @@ function main() {
 
 
 main();
-
