@@ -1,3 +1,26 @@
+auto();
+//每次运行前，都要先停止其他正在运行这个脚本的引擎
+var stopOthers = function (myScriptEngin){
+    var allengines = engines.all();
+    for(var i=0; i<allengines.length;i++){
+        var one = allengines[i];
+
+        if(one.cwd() == myScriptEngin.cwd() && one != myScriptEngin){
+            console.log("forceStop " + one);
+            one.forceStop();
+        }else{
+            console.log(one+" is running..");
+        }
+    }
+}
+try {
+    stopOthers(engines.myEngine());
+} catch (error) {
+    console.error(error);
+}
+
+
+var watering_list =["谢谢梅梅的"];//这里要在最后加个 的
 
 var aliPackagename = "com.eg.android.AlipayGphone";
 var ra = new RootAutomator();
@@ -44,6 +67,15 @@ function Pos(x, y) {
     this.x = x;
     this.y = y;
 }
+Pos.prototype = {
+    //重写toString方法
+    toString : function() {
+        return "Pos("+this.x+","+this.y+")";
+    }
+}
+
+
+
 //坐标点相对于屏幕的比例
 function PosR(wr, hr) {
     this.wr = wr;
@@ -61,18 +93,27 @@ function calcPosByRate(posR) {
 
 
 function clickPos(pos, sleepTime) {
-    
+    var beginms = new Date().getTime();
     ra.touchMove(pos.x, pos.y,1)
-    ra.tap(pos.x+randomTo(3), pos.y+randomTo(3), 1);
-
+    ra.tap(pos.x+randomTo(3), pos.y+randomTo(3), 9);
+    ra.press(pos.x+randomTo(3), pos.y+randomTo(3), 9);
     if (sleepTime > 0) {
     }else{
         sleepTime = 0;
     }
     sleepTime = randomTo(50)+sleepTime;
     //console.log("点击:(" + pos.x + "," + pos.y + "), sleep:"+sleepTime)
+
+
+    //每次都要点击一下左上角，似乎是有bug
+    ra.tap(0, 0, 9);
+    ra.press(0, 0, 9);
+
     sleep(sleepTime);
     //click(pos.x,pos.y);//这个需要Android7+
+    console.log("click函数完成，参数:"+pos+",sleepTime:"+sleepTime+"，总耗时:"+(new Date().getTime()-beginms)/1000+"秒");
+   
+    
 }
 function clickPosR(posr, sleepTime) {
     clickPos(calcPosByRate(posr), sleepTime)
@@ -153,37 +194,59 @@ function taQty() {
 
 
 function clickAllEngBts(self) {
-    
+    device.wakeUp();
+    var findDesBtn = "";
     if(!self){
         console.log("好友的蚂蚁森林");
+        findDesBtn = "浇水";
     }else{
         console.log("自己的蚂蚁森林");
+        findDesBtn = "成就";
     }
-    
-    var taView = textEndsWith("成就");
-    if (taView.exists()) {
+    console.log("等待页面加载...");
+    var taView = textEndsWith(findDesBtn).findOne(5000);//等待页面加载5秒，看看是否有 成就 按钮
+    if (taView != null) {
         var clickCount = 0;
-        taView.findOne().parent().children().forEach(function (child) {
-            var text = child.text();
-            //console.log("按钮text:"+text+",长度"+(""+text).length);
+        var friend_name = friendName();
+        taView.parent().children().forEach(function (child) {
+            var textstr = child.text().trim();
+
             var posb = child.bounds();
-            if (typeof (text) === "string" && text.indexOf(eng_btn_flag) >= 0) {
+            if (typeof (textstr) === "string" && textstr.indexOf(eng_btn_flag) >= 0) {
                 //可以收取的能量
                 clickPos(new Pos(posb.centerX(), posb.centerY()),700);
                 clickPos(new Pos(posb.centerX(), posb.centerY()),600);                
                 clickCount++;
-            } else if (("" + text).length == 1) {
+            } else if (("" + textstr).length == 0) {
                 //帮忙给好友收取或者是好友自己的能量球
                 //console.log("点击帮TA收取或者是点击不可收取能量");
                 clickPos(new Pos(posb.centerX(), posb.centerY()),700);
                 clickPos(new Pos(posb.centerX(), posb.centerY()),600);
-            } else {
+            } else if(textstr=="浇水"&&watering_list.indexOf(friend_name)>=0 && !self) {
+                for(var times=0; times<3;times++){
+                    console.log(friend_name+"在浇水列表里...");
+                    clickPos(new Pos(posb.centerX(), posb.centerY()),600); 
+                    sleep(2000);
+                    var btn66 = text("66克").findOne(5000);
+                    if(btn66!=null){
+                        btn66.click();
+                        var btnsend = text("浇水送祝福").findOne(5000);
+                        if(btnsend!=null){
+                            btnsend.click();
+                            sleep(5000);
+                            text("浇水").findOne(5000);//等待回调页面完成
+                        }
+                    }
+                }
+            }
+            else {
                 //console.log("不点击这个按钮");
             }
         });
-        console.log("在"+friendName()+"蚂蚁森林有效点击了"+clickCount+"次");
+        console.log("在"+friend_name+"蚂蚁森林点击了有能量的能量球"+clickCount+"次");
 
     } else {
+        console.log("已等待页面加载5秒，没有找到"+findDesBtn+"按钮...");
         if(!self && desc("返回").exists()){
             tLog("没有能量了，即将退出...");
             var posb = desc("返回").findOne().bounds();
@@ -223,7 +286,6 @@ function getFriendsEng() {
         //点击逛一逛
         clickPosR(explorePosR,500);//点击一次之后紧接着再点一次,防止界面有文字提示
         clickPosR(explorePosR,3000);
-        clickPosR(new PosR(0,1),200);//好像有个bug，点击的时候会停留在上一次点击的位置，这里点击一下左下角
         
         waitPage(textEndsWith("蚂蚁森林"));
         clickAllEngBts(false);
@@ -255,7 +317,7 @@ function unlock(){
     if (!device.isScreenOn()) {
         device.wakeUp();
         sleep(2000);
-        ra.swipe(maxWidth / 2, maxHeight - 300, maxWidth / 2, 50, 500);
+        ra.swipe(maxWidth / 2, maxHeight - 50, maxWidth / 2, 50, 500);
         sleep(1000);
     }
 }
@@ -265,7 +327,7 @@ function main() {
 
     unlock();
     
-    //closeApp(aliPackagename);//每次运行前，先完全终止支付宝
+    closeApp(aliPackagename);//每次运行前，先完全终止支付宝
 
     enterMyMainPage();
     getFriendsEng();
@@ -281,8 +343,6 @@ function main() {
     exit();
 
 }
-
-
 
 
 main();
