@@ -363,11 +363,7 @@ function unlock() {
 
 
 function main() {
-    setTimeout(function(){
-        console.log("运行30分钟了，自动退出脚本");
-        exit();
-    },30*60*1000);//exit() after 30min
-    
+
     unlock();
 
     ///closeApp(aliPackagename);//每次运行前，先完全终止支付宝
@@ -385,7 +381,6 @@ function main() {
 
     console.log("退出脚本");
     exit();
-
 
 }
 
