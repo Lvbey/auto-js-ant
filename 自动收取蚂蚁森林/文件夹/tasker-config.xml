@@ -1,0 +1,136 @@
+<TaskerData sr="" dvi="1" tv="5.9.3">
+	<Profile sr="prof2" ve="2">
+		<cdate>1599723557531</cdate>
+		<edate>1599727862822</edate>
+		<flags>10</flags>
+		<id>2</id>
+		<limit>true</limit>
+		<mid0>3</mid0>
+		<Time sr="con0">
+			<fh>15</fh>
+			<fm>45</fm>
+			<rep>2</rep>
+			<repval>2</repval>
+			<th>17</th>
+			<tm>7</tm>
+		</Time>
+	</Profile>
+	<Profile sr="prof5" ve="2">
+		<cdate>1599727915373</cdate>
+		<edate>1599781904049</edate>
+		<flags>10</flags>
+		<id>5</id>
+		<limit>true</limit>
+		<mid0>4</mid0>
+		<Time sr="con0">
+			<fh>7</fh>
+			<fm>0</fm>
+			<rep>2</rep>
+			<repval>10</repval>
+			<th>7</th>
+			<tm>35</tm>
+		</Time>
+	</Profile>
+	<Profile sr="prof6" ve="2">
+		<cdate>1599727915373</cdate>
+		<edate>1599798527510</edate>
+		<flags>8</flags>
+		<id>6</id>
+		<mid0>10</mid0>
+		<Time sr="con0">
+			<fh>7</fh>
+			<fm>0</fm>
+			<rep>2</rep>
+			<repval>5</repval>
+			<th>23</th>
+			<tm>42</tm>
+		</Time>
+	</Profile>
+	<Profile sr="prof8" ve="2">
+		<cdate>1599727915373</cdate>
+		<edate>1599798528370</edate>
+		<flags>10</flags>
+		<id>8</id>
+		<mid0>3</mid0>
+		<Time sr="con0">
+			<fh>7</fh>
+			<fm>0</fm>
+			<rep>2</rep>
+			<repval>15</repval>
+			<th>23</th>
+			<tm>42</tm>
+		</Time>
+	</Profile>
+	<Project sr="proj0" ve="2">
+		<cdate>1599723402462</cdate>
+		<mdate>1599788965235</mdate>
+		<name>基底</name>
+		<pids>2,5,6,8</pids>
+		<tids>3,4,10</tids>
+		<Img sr="icon" ve="2">
+			<nme>mw_action_home</nme>
+		</Img>
+	</Project>
+	<Task sr="task10">
+		<cdate>1599723569161</cdate>
+		<edate>1599798059935</edate>
+		<id>10</id>
+		<nme>测试5分钟一次</nme>
+		<pri>6</pri>
+		<stayawake>true</stayawake>
+		<Action sr="act0" ve="7">
+			<code>806</code>
+			<Int sr="arg0" val="500"/>
+		</Action>
+		<Action sr="act1" ve="7">
+			<code>410</code>
+			<Str sr="arg0" ve="3">autojs/tasker.log</Str>
+			<Str sr="arg1" ve="3">%TIME 测试5分钟一次</Str>
+			<Int sr="arg2" val="1"/>
+			<Int sr="arg3" val="1"/>
+		</Action>
+	</Task>
+	<Task sr="task3">
+		<cdate>1599723569161</cdate>
+		<edate>1599798065190</edate>
+		<id>3</id>
+		<nme>测试15分钟一次</nme>
+		<pri>6</pri>
+		<stayawake>true</stayawake>
+		<Action sr="act0" ve="7">
+			<code>806</code>
+			<Int sr="arg0" val="500"/>
+		</Action>
+		<Action sr="act1" ve="7">
+			<code>410</code>
+			<Str sr="arg0" ve="3">autojs/tasker.log</Str>
+			<Str sr="arg1" ve="3">%TIME 15分钟一次</Str>
+			<Int sr="arg2" val="1"/>
+			<Int sr="arg3" val="1"/>
+		</Action>
+	</Task>
+	<Task sr="task4">
+		<cdate>1599726567443</cdate>
+		<edate>1599788658880</edate>
+		<id>4</id>
+		<nme>蚂蚁森林脚本</nme>
+		<pri>100</pri>
+		<stayawake>true</stayawake>
+		<Action sr="act0" ve="7">
+			<code>20</code>
+			<App sr="arg0">
+				<appClass>org.autojs.autojs.ui.splash.SplashActivity_</appClass>
+				<appPkg>org.autojs.autojs</appPkg>
+				<label>Auto.js</label>
+			</App>
+			<Str sr="arg1" ve="3"/>
+			<Int sr="arg2" val="0"/>
+			<Int sr="arg3" val="0"/>
+		</Action>
+		<Action sr="act1" ve="7">
+			<code>102</code>
+			<Str sr="arg0" ve="3">autojs/Ant.js</Str>
+			<Str sr="arg1" ve="3">application/x-javascript</Str>
+		</Action>
+	</Task>
+</TaskerData>
