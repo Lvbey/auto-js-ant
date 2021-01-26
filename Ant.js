@@ -1,5 +1,4 @@
 
-
 auto();
 requestScreenCapture();
 
@@ -24,14 +23,6 @@ try {
     console.error(error);
 }
 
-
-var availableMinYR = 0.21;//能量球纵坐标最小比例
-var availableMaxYR = 0.43;//能量球纵坐标最大比例
-
-var watering_list = [
-    "谢谢梅梅的"
-    ];//这里要在最后加个 的
-
 var aliPackagename = "com.eg.android.AlipayGphone";
 var ra = new RootAutomator();
 var nomoreEngCount = 0;
@@ -39,6 +30,25 @@ var maxWidth = device.width;
 var maxHeight = device.height;
 
 var ballAvailableRect = [0,maxHeight*availableMinYR,maxWidth-150];
+
+
+// var availableMinYR = 0.21;//能量球纵坐标最小比例 
+// var availableMaxYR = 0.43;//能量球纵坐标最大比例
+
+var availableMinYR = 0.25625;//能量球纵坐标最小比例 
+var availableMaxYR = 0.40625;//能量球纵坐标最大比例 
+
+var engBallDiameter  = 60;//假定能量球的直径是60
+
+var availableXStart=50;
+var availableXEnd  = maxWidth-150;
+var availableYStart=maxHeight * availableMinYR; //328
+var availableYEnd  = maxHeight * availableMaxYR;//520
+var availableWidth = availableXEnd - availableXStart;
+var availableHeight= availableYEnd - availableYStart;
+
+
+var watering_list=[];
 
 var eng_btn_flag = "收集能量";
 var friend_name_flag = "蚂蚁森林";
@@ -258,6 +268,9 @@ function getMyOwnEngNumNow(){
     return 0;
 }
 
+var sameoneXdiff = engBallDiameter / 2;
+var sameoneYdiff = 10;
+
 function clickAllEngBts(self) {
     device.wakeUp();
     var findDesBtn = "";
@@ -276,86 +289,87 @@ function clickAllEngBts(self) {
     if (taView != null) {
         var clickCount = 0;
         var friend_name = friendName();
-        console.log("收取" + friend_name + "能量");
 
-        var img = captureScreen();//1F7400
+        var img = captureScreen();
 
-        //灰度化，识别圆形
-        var gray = images.grayscale(img);
-/*         
-        var balls = images.findCircles(gray, {
-            dp: 1,
-            minDist: 0.09,
-            minRadius: cX(0.054),
-            maxRadius: cX(0.078),
-            param1: 15,
-            param2: 15,
-            region: [_l, _t, _w, _h],
-        })
- */
         //判断有无能量保护罩
         var color = images.pixel(img, maxWidth/2, 255);
         // //显示该颜色值
-        if((colors.toString(color))=="#ffb4ff70"){
-            //#ffb4ff70
+        if((colors.toString(color))=="#ffb4ff70"){//#ffb4ff70
             tLog("好友开启了能量保护罩...");
             return;
         }
 
+        // images.clip(img, x, y, w, h);//从图片img的位置(x, y)处剪切大小为w * h的区域
+        var clipedImage = images.clip(img,availableXStart,availableYStart,availableWidth,availableHeight);
+        var clipedImageWidth = clipedImage.getWidth();
 
+        var blurImage = images.blur(clipedImage, [3,3]);//圆润处理
+
+        var engImage = images.interval(blurImage, "#c1fe00", 30);//只留下能量球
+        var yelImage = images.interval(blurImage, "#fcdf69", 10);//只留下浇水球
+
+/* 
+        console.log("保存中...");
+
+        var engImagePath = "/storage/emulated/0/autojs/img/engImage.jpg";
+        images.save(engImage, engImagePath, format = "jpg");
+
+        var yelImagePath = "/storage/emulated/0/autojs/img/yelImage.jpg";
+        images.save(yelImage, yelImagePath, format = "jpg");
+ */
 
         //好友浇水
-        var help = images.findColorInRegion(img, "#a8811f", 150,250,150,200,40);
+      /*   var help = images.findColorInRegion(img, "#a8811f", 150,250,150,200,40);
         if (help) {
             //log("找到帮ta收取位置:" + help);
             clickPos(help, 700);
-        }
+        } */
 
 
-        var accx = 20;
-        var xstep = 50;
-        while (accx <= (maxWidth-100 - xstep)) {
-            if (self) {
-                //自己能量数字字体颜色：#1e9500,#128e00,#2d9f00
-                var point = images.findColorInRegion(img, "#dfff01", accx, 300, xstep, 300, 60);
-                if (point) {
-                    clickPos(point, 700);
-                }
-                
-            } else {
-                
-            if (watering_list.indexOf(friend_name) >= 0 && !self) {
-                
-                continue;
+        var accx = 0; 
+        var xstep = engBallDiameter;
+        var ballsPos = [];
+        var lastPos = new Pos(0,0);
+        var lastPos2 = new Pos(0,0);
+        while (accx < clipedImageWidth) {
+
+            //避免最后的一块识别不到
+            if(clipedImageWidth<(accx+xstep)){
+                xstep = clipedImageWidth-accx;
             }
-                
-                
-                
-                //白色手套：#ffffff 
-                //帮ta收取的边缘也是有 #ffffff 的像素
-                //坐标 x-40, y-70，得到能量球位置
-                var point = images.findColorInRegion(img, "#ffffff", accx, 380, xstep, 200, 0);
-                if (point) {
-                    //log("找到白色手套位置:" + point);，橙色手套也可以获取到
-                    clickPos(new Pos(point.x - 40, point.y - 70), 1200);
-                    clickPos(new Pos(point.x - 40, point.y - 70), 500);
-                    // var color = images.pixel(img, point.x - 40, point.y - 70);
-                    // // //显示该颜色值
-                    //  console.log("白色点"+point.x+","+point.y+"，白色手套偏移量颜色("+(point.x - 40)+","+(point.y - 70)+")--" + colors.toString(color));//#ffb4ff70
 
-
+            //普通能量球
+            var point = images.findColorInRegion(engImage, "#ffffff", accx, 0, (xstep), clipedImage.getHeight(), 0);
+            if (point) {
+                var realPos = new Pos(point.x+availableXStart, point.y+availableYStart);
+                if((realPos.x - lastPos.x) <= sameoneXdiff && (realPos.y - lastPos.y) <= sameoneYdiff){
+                    // console.log(lastPos+" , "+realPos+" 两点似乎是同一个能量球");
+                }else{
+                    ballsPos.push(realPos);
                 }
-
-                // var help = images.findColorInRegion(img, "#e6aa69", accx, 380, xstep, 200, 0);
-                // if (help) {
-                //     console.log("找到帮ta收取位置:" + help);
-                //     // clickPos(new Pos(help.x - 40, help.y - 70), 2000);
-                //     //在帮ta收取下面可能会隐藏能量球
-                //     // clickPos(new Pos(help.x - 40, help.y - 70), 700);
-                // }
+                lastPos = realPos;
             }
+            
+            //浇水能量球
+            var point2 = images.findColorInRegion(yelImage, "#ffffff", accx, 0, xstep, clipedImage.getHeight(), 0);
+            if (point2) {
+                var realPos = new Pos(point2.x+availableXStart, point2.y+availableYStart);
+                if((realPos.x - lastPos2.x) <= sameoneXdiff && (realPos.y - lastPos2.y) <= sameoneYdiff){
+                    // console.log(lastPos2+" , "+realPos+" 两点似乎是同一个能量球");
+                }else{
+                    ballsPos.push(realPos);
+                }
+                lastPos2 = realPos;
+            }
+
             accx += xstep;
         }
+        console.log("点击" + friend_name + "森林"+ballsPos.length+"次");
+        ballsPos.forEach(function(pos){
+            clickPos(pos, 1000);
+            clickPos(pos, 200);
+        });
 
         if (watering_list.indexOf(friend_name) >= 0 && !self) {
             // #1695e8 是 浇水按钮的颜色
@@ -380,8 +394,11 @@ function clickAllEngBts(self) {
                 }
             }
         }
+        //回收图片
         img.recycle();
-        gray.recycle();
+        blurImage.recycle();
+        engImage.recycle();
+        yelImage.recycle();
 
     } else {
         console.log("已等待页面加载9秒，没有找到" + findDesBtn + "按钮...");
@@ -397,16 +414,40 @@ function clickAllEngBts(self) {
     }
 }
 
+function checkLogin(){
 
+    console.log("开启重登陆检测");
+    launchApp("支付宝");
+
+    tLog("等待支付宝启动");
+    sleep(2000);
+    
+    //账号在其他设备登录
+    //判断账号在其他设备登录
+    var loginErrmsg = text("账号在其他设备登录").findOne(20000);//等待回调页面完成 20s
+    if(loginErrmsg ==null){
+        console.log("20秒内没有提醒重登陆，不需要重新登录");
+        return;
+    }
+    
+    console.log("需要重新登录");
+
+    text("好的").findOne().click();
+    sleep(2000);
+    Text(window.atob("bHZibzMwMjUzMjM1MjE="));
+    sleep(2000);
+    text("登录").findOne().click();
+    sleep(2000);
+
+    console.log("重新登录完成");
+    
+}
 
 /**
  * 从支付宝主页进入蚂蚁森林我的主页
  */
 function enterMyMainPage() {
-    launchApp("支付宝");
 
-    tLog("等待支付宝启动");
-    sleep(2000);
 
     //判断是不是在其他页面
     var homeBtn = text("首页").findOne(5000);//等待回调页面完成
@@ -526,16 +567,42 @@ function main() {
     });
 
 
+    var popupMonitor = threads.start(function(){
+        console.log("开启弹窗监控进程...");
+        //在新线程执行的代码
+        while(true){
+            var pop1 = idContains("J_pop_treedialog_close");
+            if(pop1.exists()){
+                console.log("检测到有弹窗(J_pop_treedialog_close)，执行关闭操作...");
+                pop1.find().click();
+            }
+    
+            var object = className("android.widget.Image").find();
+            for (var index = 0; index < object.length; index++) {
+                if (object[index].text().indexOf("AA")>0) {
+                    var _pop = object[index];
+                    var closeBtn = _pop.parent().child(1);
+                    console.log("检测到有弹窗(多A)，执行关闭操作...");
+                    closeBtn.click();
+                }
+            }
+            sleep(2000);
+        }
+    });
+    
     unlock();
+    checkLogin();
     enterMyMainPage();
     getFriendsEng();
 
     ///closeApp(aliPackagename);
 
     events.on('exit', function () {
+        //停止线程执行
+        popupMonitor.interrupt();
         ra.exit();
         home();
-        console.log("退出root，返回桌面");
+        console.log("终止弹窗监控进程...退出root...返回桌面");
     })
 
     console.log("退出脚本");
@@ -546,42 +613,6 @@ function main() {
 
 
 main();
-
-
-// console.log(getMyOwnEngNumNow())
-// console.log(text("种树").findOne());
-
-//请求横屏截图
-
-// 截图
-//  var img = captureScreen();//1F7400
-
-
-//  var img = images.read("./1.png");
-
-
- //images.save(img, "/sdcard/autojs/2020-11-23-20-46.jpg", "jpg", 100);
-
-// var posArray = [
-//     new Pos(376,374),
-//     new Pos(284,396),
-//     new Pos(157,458),
-// ];
-
-// posArray.forEach(function(item, index){
-//     // console.log(item);
-
-//     var color = images.pixel(img, item.x, item.y);
-//     // // //显示该颜色值
-//      console.log(item + "--" + colors.toString(color));//#ffb4ff70
-// });
-
-
-
-
-
-// console.show();
-
-
-
+// checkLogin();
 // clickAllEngBts(false);
+
