@@ -121,11 +121,14 @@ AntUtil.checkUpdate = function (normalCallback) {
         if (localVersion != remoteVersion) {
             setTimeout(function () {
                 console.log("更新完成，延迟执行RunAnt.js...");
-                engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
+
             }, 5000);
+            
             _this.Unzip(file, AntConfig.WorkDirPath + "/../", false);//解压即覆盖
             _this.tLog("更新到最新版本完成，退出程序");
+            engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
             exit();
+            
         } else {
             toast("已经是最新版本了");
             if (normalCallback) {
