@@ -1,3 +1,5 @@
-engines.execScriptFile(engines.myEngine().cwd()+"/RunAnt.js");
-console.log("运行RunAnt.js");
+var path = engines.myEngine().cwd();
+console.log("在"+path+"下，运行RunAnt.js");
+engines.execScriptFile(path+"/RunAnt.js");
+
 exit();
