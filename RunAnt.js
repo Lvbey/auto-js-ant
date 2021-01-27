@@ -9,12 +9,6 @@ var AntUtil = require("./module/AntUtil.js");
 
 AntUtil.checkUpdate(
     function () {
-        setTimeout(function () {
-            console.log("更新完成，延迟执行RunAnt.js...");
-            engines.execScriptFile("./RunAnt.js");
-        }, 5000);
-    },
-    function () {
         console.log("无需更新时，正常执行");
         engines.execScriptFile("./" + AntConfig.ExescriptFileName);
     }

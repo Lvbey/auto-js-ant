@@ -579,7 +579,7 @@ function main() {
     //     exit();
     // }
 
-    AntUtil.checkUpdate();
+    // AntUtil.checkUpdate();
 
     threads.start(function () {
         //在新线程执行的代码

@@ -86,7 +86,7 @@ AntUtil.OverrideFiles = function(srcDir,DesDir){
 
 }
 
-AntUtil.checkUpdate = function(updateFinishCallback, normalCallback){
+AntUtil.checkUpdate = function( normalCallback){
     var _this = this;
     var remoteVersion = AntUtil._getRemoteVersion();
     console.log("本地版本：" + AntConfig.VersionNow + "，远程版本："+remoteVersion);
@@ -110,13 +110,15 @@ AntUtil.checkUpdate = function(updateFinishCallback, normalCallback){
             // files.create();
             files.writeBytes(file, bytes);
 
-            _this.Unzip(file,AntConfig.WorkDirPath+"/../",false);
+            setTimeout(function () {
+                console.log("更新完成，延迟执行RunAnt.js...");
+                engines.execScriptFile(AntConfig.WorkDirPath+"/RunAnt.js");
+            }, 5000);
+
+            //目前github无法获取单个文件，所以版本号是存在gitee上面的
+            _this.Unzip(file,AntConfig.WorkDirPath+"/../",false);//解压即覆盖
 
             tLog("更新到最新版本完成");
-
-            if(updateFinishCallback){
-                updateFinishCallback();
-            }
 
         }else if(res != null){
             _this.tLog(res);
