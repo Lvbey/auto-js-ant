@@ -44,7 +44,7 @@ var availableMaxYR = 0.40625;//能量球纵坐标最大比例
 var engBallDiameter = 60;//假定能量球的直径是60
 
 var availableXStart = 50;
-var availableXEnd = maxWidth - 150;
+var availableXEnd = maxWidth - 120;
 var availableYStart = maxHeight * availableMinYR; //328
 var availableYEnd = maxHeight * availableMaxYR;//520
 var availableWidth = availableXEnd - availableXStart;
