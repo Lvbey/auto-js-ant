@@ -29,7 +29,7 @@ var nomoreEngCount = 0;
 var maxWidth = device.width;
 var maxHeight = device.height;
 
-var ballAvailableRect = [0,maxHeight*availableMinYR,maxWidth-150];
+var ballAvailableRect = [0, maxHeight * availableMinYR, maxWidth - 150];
 
 
 // var availableMinYR = 0.21;//能量球纵坐标最小比例 
@@ -38,17 +38,17 @@ var ballAvailableRect = [0,maxHeight*availableMinYR,maxWidth-150];
 var availableMinYR = 0.25625;//能量球纵坐标最小比例 
 var availableMaxYR = 0.40625;//能量球纵坐标最大比例 
 
-var engBallDiameter  = 60;//假定能量球的直径是60
+var engBallDiameter = 60;//假定能量球的直径是60
 
-var availableXStart=50;
-var availableXEnd  = maxWidth-150;
-var availableYStart=maxHeight * availableMinYR; //328
-var availableYEnd  = maxHeight * availableMaxYR;//520
+var availableXStart = 50;
+var availableXEnd = maxWidth - 150;
+var availableYStart = maxHeight * availableMinYR; //328
+var availableYEnd = maxHeight * availableMaxYR;//520
 var availableWidth = availableXEnd - availableXStart;
-var availableHeight= availableYEnd - availableYStart;
+var availableHeight = availableYEnd - availableYStart;
 
 
-var watering_list=[];
+var watering_list = [];
 
 var eng_btn_flag = "收集能量";
 var friend_name_flag = "蚂蚁森林";
@@ -248,18 +248,18 @@ function btnInAvailableRect(posb) {
     }
 
 }
-function getMyOwnEngNumNow(){
+function getMyOwnEngNumNow() {
     var objects = textContains("种树").findOne().parent().children();
     for (var i = 0; i < objects.length; i++) {
         //log(objects[i]);
-        if(objects[i].className()=="android.view.View"){//克数的父级
+        if (objects[i].className() == "android.view.View") {//克数的父级
             var subs = objects[i].children();
             for (var j = 0; j < subs.length; j++) {
                 //log(subs[j]);
-                if(subs[j].text().length>0){
-                    var text = (subs[j].text()+"").replace(/\D/g,"");
-                    var num = text==""?0:parseInt(text);
-                    console.log("当前自己的能量是:"+num+"g");
+                if (subs[j].text().length > 0) {
+                    var text = (subs[j].text() + "").replace(/\D/g, "");
+                    var num = text == "" ? 0 : parseInt(text);
+                    console.log("当前自己的能量是:" + num + "g");
                     return num;
                 }
             }
@@ -293,71 +293,71 @@ function clickAllEngBts(self) {
         var img = captureScreen();
 
         //判断有无能量保护罩
-        var color = images.pixel(img, maxWidth/2, 255);
+        var color = images.pixel(img, maxWidth / 2, 255);
         // //显示该颜色值
-        if((colors.toString(color))=="#ffb4ff70"){//#ffb4ff70
+        if ((colors.toString(color)) == "#ffb4ff70") {//#ffb4ff70
             tLog("好友开启了能量保护罩...");
             return;
         }
 
         // images.clip(img, x, y, w, h);//从图片img的位置(x, y)处剪切大小为w * h的区域
-        var clipedImage = images.clip(img,availableXStart,availableYStart,availableWidth,availableHeight);
+        var clipedImage = images.clip(img, availableXStart, availableYStart, availableWidth, availableHeight);
         var clipedImageWidth = clipedImage.getWidth();
 
-        var blurImage = images.blur(clipedImage, [3,3]);//圆润处理
+        var blurImage = images.blur(clipedImage, [3, 3]);//圆润处理
 
         var engImage = images.interval(blurImage, "#c1fe00", 30);//只留下能量球
         var yelImage = images.interval(blurImage, "#fcdf69", 10);//只留下浇水球
 
-/* 
-        console.log("保存中...");
-
-        var engImagePath = "/storage/emulated/0/autojs/img/engImage.jpg";
-        images.save(engImage, engImagePath, format = "jpg");
-
-        var yelImagePath = "/storage/emulated/0/autojs/img/yelImage.jpg";
-        images.save(yelImage, yelImagePath, format = "jpg");
- */
+        /* 
+                console.log("保存中...");
+        
+                var engImagePath = "/storage/emulated/0/autojs/img/engImage.jpg";
+                images.save(engImage, engImagePath, format = "jpg");
+        
+                var yelImagePath = "/storage/emulated/0/autojs/img/yelImage.jpg";
+                images.save(yelImage, yelImagePath, format = "jpg");
+         */
 
         //好友浇水
-      /*   var help = images.findColorInRegion(img, "#a8811f", 150,250,150,200,40);
-        if (help) {
-            //log("找到帮ta收取位置:" + help);
-            clickPos(help, 700);
-        } */
+        /*   var help = images.findColorInRegion(img, "#a8811f", 150,250,150,200,40);
+          if (help) {
+              //log("找到帮ta收取位置:" + help);
+              clickPos(help, 700);
+          } */
 
 
-        var accx = 0; 
+        var accx = 0;
         var xstep = engBallDiameter;
         var ballsPos = [];
-        var lastPos = new Pos(0,0);
-        var lastPos2 = new Pos(0,0);
+        var lastPos = new Pos(0, 0);
+        var lastPos2 = new Pos(0, 0);
         while (accx < clipedImageWidth) {
 
             //避免最后的一块识别不到
-            if(clipedImageWidth<(accx+xstep)){
-                xstep = clipedImageWidth-accx;
+            if (clipedImageWidth < (accx + xstep)) {
+                xstep = clipedImageWidth - accx;
             }
 
             //普通能量球
             var point = images.findColorInRegion(engImage, "#ffffff", accx, 0, (xstep), clipedImage.getHeight(), 0);
             if (point) {
-                var realPos = new Pos(point.x+availableXStart, point.y+availableYStart);
-                if((realPos.x - lastPos.x) <= sameoneXdiff && (realPos.y - lastPos.y) <= sameoneYdiff){
+                var realPos = new Pos(point.x + availableXStart, point.y + availableYStart);
+                if ((realPos.x - lastPos.x) <= sameoneXdiff && (realPos.y - lastPos.y) <= sameoneYdiff) {
                     // console.log(lastPos+" , "+realPos+" 两点似乎是同一个能量球");
-                }else{
+                } else {
                     ballsPos.push(realPos);
                 }
                 lastPos = realPos;
             }
-            
+
             //浇水能量球
             var point2 = images.findColorInRegion(yelImage, "#ffffff", accx, 0, xstep, clipedImage.getHeight(), 0);
             if (point2) {
-                var realPos = new Pos(point2.x+availableXStart, point2.y+availableYStart);
-                if((realPos.x - lastPos2.x) <= sameoneXdiff && (realPos.y - lastPos2.y) <= sameoneYdiff){
+                var realPos = new Pos(point2.x + availableXStart, point2.y + availableYStart);
+                if ((realPos.x - lastPos2.x) <= sameoneXdiff && (realPos.y - lastPos2.y) <= sameoneYdiff) {
                     // console.log(lastPos2+" , "+realPos+" 两点似乎是同一个能量球");
-                }else{
+                } else {
                     ballsPos.push(realPos);
                 }
                 lastPos2 = realPos;
@@ -365,8 +365,8 @@ function clickAllEngBts(self) {
 
             accx += xstep;
         }
-        console.log("点击" + friend_name + "森林"+ballsPos.length+"次");
-        ballsPos.forEach(function(pos){
+        console.log("点击" + friend_name + "森林" + ballsPos.length + "次");
+        ballsPos.forEach(function (pos) {
             clickPos(pos, 1000);
             clickPos(pos, 200);
         });
@@ -399,14 +399,13 @@ function clickAllEngBts(self) {
         blurImage.recycle();
         engImage.recycle();
         yelImage.recycle();
-
     } else {
         console.log("已等待页面加载9秒，没有找到" + findDesBtn + "按钮...");
         if (!self && desc("返回").exists()) {
             tLog("没有能量了，即将退出...");
             desc("返回").findOne().click();//返回自己的森林
             waitPage(text("排行榜"));//等待加载个人界面
-            console.log("本次收取能量："+(getMyOwnEngNumNow()-myOwnEngNum)+"g");
+            console.log("本次收取能量：" + (getMyOwnEngNumNow() - myOwnEngNum) + "g");
             sleep(1000);
             desc("关闭").findOne().click();//返回支付宝首页
         }
@@ -414,33 +413,43 @@ function clickAllEngBts(self) {
     }
 }
 
-function checkLogin(){
+function checkLogin() {
 
     console.log("开启重登陆检测");
     launchApp("支付宝");
 
     tLog("等待支付宝启动");
     sleep(2000);
-    
-    //账号在其他设备登录
-    //判断账号在其他设备登录
-    var loginErrmsg = text("账号在其他设备登录").findOne(20000);//等待回调页面完成 20s
-    if(loginErrmsg ==null){
-        console.log("20秒内没有提醒重登陆，不需要重新登录");
-        return;
+
+
+    var anacc = text("换个账号登录").findOne(5000);
+
+    var needrelogin = false;
+
+    if (anacc != null) {
+        needrelogin = true;
+        clickPos(new Pos(360, 550), 500);
+    } else {
+
+        //账号在其他设备登录
+        //判断账号在其他设备登录
+        var loginErrmsg = text("账号在其他设备登录").findOne(20000);//等待回调页面完成 20s
+        if (loginErrmsg != null) {
+            needrelogin = true;
+            text("好的").findOne().click();
+        }
+
     }
-    
-    console.log("需要重新登录");
+    if (needrelogin) {
+        console.log("需要重新登录");
+        sleep(5000);
+        Text("lvbo3025323521");
+        sleep(2000);
+        text("登录").findOne().click();
+        sleep(2000);
+        console.log("重新登录完成");
+    }
 
-    text("好的").findOne().click();
-    sleep(2000);
-    Text(window.atob("bHZibzMwMjUzMjM1MjE="));
-    sleep(2000);
-    text("登录").findOne().click();
-    sleep(2000);
-
-    console.log("重新登录完成");
-    
 }
 
 /**
@@ -521,7 +530,7 @@ function unlock() {
     }
 }
 
-function checkNetwork(){
+function checkNetwork() {
 
     (function () {
         let request = http.request;
@@ -541,10 +550,10 @@ function checkNetwork(){
     //设置超时为10秒
     http.__okhttp__.setTimeout(10000);
     var r = http.get("www.baidu.com");
-    if(r!=null && r.statusCode+"" == "200"){
+    if (r != null && r.statusCode + "" == "200") {
         console.log("网络通畅");
         return true;
-    }else{
+    } else {
         console.log("网络不通");
         return false;
     }
@@ -553,7 +562,7 @@ function checkNetwork(){
 
 function main() {
 
-    if(!checkNetwork()){
+    if (!checkNetwork()) {
         tLog("无法连接网络");
         exit();
     }
@@ -567,19 +576,19 @@ function main() {
     });
 
 
-    var popupMonitor = threads.start(function(){
+    var popupMonitor = threads.start(function () {
         console.log("开启弹窗监控进程...");
         //在新线程执行的代码
-        while(true){
+        while (true) {
             var pop1 = idContains("J_pop_treedialog_close");
-            if(pop1.exists()){
+            if (pop1.exists()) {
                 console.log("检测到有弹窗(J_pop_treedialog_close)，执行关闭操作...");
                 pop1.find().click();
             }
-    
+
             var object = className("android.widget.Image").find();
             for (var index = 0; index < object.length; index++) {
-                if (object[index].text().indexOf("AA")>0) {
+                if (object[index].text().indexOf("AA") > 0) {
                     var _pop = object[index];
                     var closeBtn = _pop.parent().child(1);
                     console.log("检测到有弹窗(多A)，执行关闭操作...");
@@ -589,7 +598,7 @@ function main() {
             sleep(2000);
         }
     });
-    
+
     unlock();
     checkLogin();
     enterMyMainPage();
@@ -615,4 +624,5 @@ function main() {
 main();
 // checkLogin();
 // clickAllEngBts(false);
+
 
