@@ -451,11 +451,8 @@ function checkLogin() {
     if (needrelogin) {
         console.log("需要重新登录");
         sleep(5000);
-
-        
-
         Text(AntUtil.storage.getPassByStorage());
-        sleep(2000);
+        sleep(5000);
         text("登录").findOne().click();
         sleep(2000);
         console.log("重新登录完成");
