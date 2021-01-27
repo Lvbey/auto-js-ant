@@ -4,23 +4,23 @@ var AntUtil = {};
 
 
 AntUtil.storage = {}
-AntUtil.storage.getStorage = function (){
+AntUtil.storage.getStorage = function () {
     return storages.create(AntConfig.StorageName);
 }
-AntUtil.storage.getPassByStorage = function (){
+AntUtil.storage.getPassByStorage = function () {
     var storage = this.getStorage();
-    var pass = storage.get(AntConfig.StorageLoginPassName,false);
-    if(!pass){
+    var pass = storage.get(AntConfig.StorageLoginPassName, false);
+    if (!pass) {
         this.tLog("需要设置登录密码");
         return null;
-    }else{
+    } else {
         console.log("从本地获取到登录密码");
         return pass;
     }
 }
-AntUtil.storage.setPassByStorage = function (pass){
+AntUtil.storage.setPassByStorage = function (pass) {
     var storage = this.getStorage();
-    storage.put(AntConfig.StorageLoginPassName,pass);
+    storage.put(AntConfig.StorageLoginPassName, pass);
     this.tLog("设置密码完成");
 }
 
@@ -61,11 +61,11 @@ AntUtil._getRemoteVersion = function () {
 
 
     var res = http.get(AntConfig.VersionUrl);
-    if (res!=null && res.statusCode >= 200 && res.statusCode < 300) {
-        
+    if (res != null && res.statusCode >= 200 && res.statusCode < 300) {
+
         var remoteVersion = res.body.string();
 
-        log("code = " + res.statusCode+", body = "+ remoteVersion);
+        log("code = " + res.statusCode + ", body = " + remoteVersion);
 
         return remoteVersion;
     } else {
@@ -76,69 +76,74 @@ AntUtil._getRemoteVersion = function () {
 }
 
 
-AntUtil.OverrideFiles = function(srcDir,DesDir){
-    console.log(files.remove(srcDir+"/RunAnt.js"));//不覆盖这个文件
+AntUtil.OverrideFiles = function (srcDir, DesDir) {
+    console.log(files.remove(srcDir + "/RunAnt.js"));//不覆盖这个文件
 
-    console.log(files.copy(srcDir,DesDir));
+    console.log(files.copy(srcDir, DesDir));
 
     // var arr = files.listDir(srcDir);
     // console.log(arr);
 
 }
 
-AntUtil.checkUpdate = function( normalCallback){
+AntUtil.checkUpdate = function (normalCallback) {
     var _this = this;
-    var remoteVersion = AntUtil._getRemoteVersion();
-    console.log("本地版本：" + AntConfig.VersionNow + "，远程版本："+remoteVersion);
-    if(AntConfig.VersionNow != remoteVersion){
-        console.log("需要更新");
+    // var remoteVersion = AntUtil._getRemoteVersion();
+    // console.log("本地版本：" + AntConfig.VersionNow + "，远程版本："+remoteVersion);
+    // if(AntConfig.VersionNow != remoteVersion){
+    // console.log("需要更新");
 
-        var downloadUrl = AntConfig.DownloadUrl;
-        var res = http.get(downloadUrl,{
-            headers: {
-                'Accept-Language': 'zh-cn,zh;q=0.5',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'User-Agent': 'Mozilla/5.0(Macintosh;IntelMacOSX10_7_0)AppleWebKit/535.11(KHTML,likeGecko)Chrome/17.0.963.56Safari/535.11'
+    var downloadUrl = AntConfig.DownloadUrl;
+    var res = http.get(downloadUrl, {
+        headers: {
+            'Accept-Language': 'zh-cn,zh;q=0.5',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'User-Agent': 'Mozilla/5.0(Macintosh;IntelMacOSX10_7_0)AppleWebKit/535.11(KHTML,likeGecko)Chrome/17.0.963.56Safari/535.11'
+        }
+    });
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+        // toast("文件获取成功!");
+        var bytes = res.body.bytes();
+        // _this.tLog("相应内容类型："+res.body.contentType +",bytes长度:"+bytes.length);
+
+        var file = AntConfig.WorkDirPath + ".zip";
+        // files.create();
+        files.writeBytes(file, bytes);
+
+        setTimeout(function () {
+            console.log("更新完成，延迟执行RunAnt.js...");
+            engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
+        }, 5000);
+
+        //目前github无法获取单个文件，所以版本号是需要下载zip包解压和本地文件判读那
+        var tmp = AntConfig.WorkDirPath + "/tmp";
+        _this.Unzip(file, tmp, false);//解压到临时文件夹，判断版本号
+
+        var remoteVersion = files.read(tmp+"/auto-js-ant-release/version");
+        console.log("本地版本：" + AntConfig.VersionNow + "，远程版本：" + remoteVersion);
+
+        if (AntConfig.VersionNow != remoteVersion) {
+            _this.Unzip(file, AntConfig.WorkDirPath + "/../", false);//解压即覆盖
+            _this.tLog("更新到最新版本完成");
+        } else {
+            toast("已经是最新版本了");
+            if (normalCallback) {
+                normalCallback();
             }
-        });
-        if(res.statusCode >= 200 && res.statusCode < 300){
-            toast("页面获取成功!");
-            var bytes = res.body.bytes();
-            // _this.tLog("相应内容类型："+res.body.contentType +",bytes长度:"+bytes.length);
-
-            var file = AntConfig.WorkDirPath+".zip";
-            // files.create();
-            files.writeBytes(file, bytes);
-
-            setTimeout(function () {
-                console.log("更新完成，延迟执行RunAnt.js...");
-                engines.execScriptFile(AntConfig.WorkDirPath+"/RunAnt.js");
-            }, 5000);
-
-            //目前github无法获取单个文件，所以版本号是存在gitee上面的
-            _this.Unzip(file,AntConfig.WorkDirPath+"/../",false);//解压即覆盖
-
-            tLog("更新到最新版本完成");
-
-        }else if(res != null){
-            _this.tLog(res);
-        }else{
-            _this.tLog("无法连接网络");
-            exit();
         }
-    }else{
-        toast("已经是最新版本了");
-        if(normalCallback){
-            normalCallback();
-        }
+
+    } else if (res != null) {
+        _this.tLog(res);
+    } else {
+        _this.tLog("无法连接网络");
+        exit();
     }
-
 }
 
 
 
 
-AntUtil.Unzip = function(input_path, output_path, within_folder, dialog) {
+AntUtil.Unzip = function (input_path, output_path, within_folder, dialog) {
     // delete global._$_dialog_streaming_intrp_sgn;
 
     let {
