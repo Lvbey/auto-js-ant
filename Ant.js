@@ -574,13 +574,6 @@ function checkNetwork() {
 
 function main() {
 
-    // if (!checkNetwork()) {
-    //     tLog("无法连接网络");
-    //     exit();
-    // }
-
-    // AntUtil.checkUpdate();
-
     threads.start(function () {
         //在新线程执行的代码
         setTimeout(function () {
@@ -639,11 +632,9 @@ function main() {
 
 }
 
-console.log("这里是Ant.js");
-
 // AntUtil.checkUpdate();
 // 
-// main();
+main();
 // checkLogin();
 // clickAllEngBts(false);
 

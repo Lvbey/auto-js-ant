@@ -1,6 +1,5 @@
 
 //这个文件要和 Ant.js 放在同一个文件夹，不然会出现execScriptFile无法require的问题
-sleep(2000);
 
 var AntConfig = require("./module/AntConfig.js");
 var AntUtil = require("./module/AntUtil.js");
