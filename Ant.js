@@ -1,5 +1,4 @@
-var AntUtil = require("./AntUtil.js");
-// var AntConfig = require("./AntConfig");
+var AntUtil = require("./module/AntUtil.js");
 
 auto();
 requestScreenCapture();
@@ -640,8 +639,10 @@ function main() {
 
 }
 
-AntUtil.checkUpdate();
+console.log("这里是Ant.js");
 
+// AntUtil.checkUpdate();
+// 
 // main();
 // checkLogin();
 // clickAllEngBts(false);
