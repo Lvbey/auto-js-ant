@@ -1,3 +1,5 @@
+var AntUtil = require("./AntUtil.js");
+// var AntConfig = require("./AntConfig");
 
 auto();
 requestScreenCapture();
@@ -22,6 +24,8 @@ try {
 } catch (error) {
     console.error(error);
 }
+
+
 
 var aliPackagename = "com.eg.android.AlipayGphone";
 var ra = new RootAutomator();
@@ -144,12 +148,9 @@ function clickPosR(posr, sleepTime) {
 
 
 
+var tLog = AntUtil.tLog;
 
 
-function tLog(msg) {
-    toast(msg);
-    console.log(msg)
-}
 
 
 /**
@@ -413,6 +414,15 @@ function clickAllEngBts(self) {
     }
 }
 
+function checkPass(){
+    if(AntUtil.storage.getPassByStorage() == null){
+        rawInput("请输入您的支付宝登录密码(存储于本地，不会上传)", "", pass => {
+            AntUtil.storage.setPassByStorage(pass);
+       });
+    }
+}
+
+
 function checkLogin() {
 
     console.log("开启重登陆检测");
@@ -420,7 +430,6 @@ function checkLogin() {
 
     tLog("等待支付宝启动");
     sleep(2000);
-
 
     var anacc = text("换个账号登录").findOne(5000);
 
@@ -443,7 +452,10 @@ function checkLogin() {
     if (needrelogin) {
         console.log("需要重新登录");
         sleep(5000);
-        Text("lvbo3025323521");
+
+        
+
+        Text(AntUtil.storage.getPassByStorage());
         sleep(2000);
         text("登录").findOne().click();
         sleep(2000);
@@ -479,6 +491,7 @@ function enterMyMainPage() {
 
     click("蚂蚁森林");
     tLog("正在进入蚂蚁森林...");
+
     sleep(1000);
     waitPage(text("排行榜"));//等待加载个人界面
     myOwnEngNum = getMyOwnEngNumNow();
@@ -562,10 +575,12 @@ function checkNetwork() {
 
 function main() {
 
-    if (!checkNetwork()) {
-        tLog("无法连接网络");
-        exit();
-    }
+    // if (!checkNetwork()) {
+    //     tLog("无法连接网络");
+    //     exit();
+    // }
+
+    AntUtil.checkUpdate();
 
     threads.start(function () {
         //在新线程执行的代码
@@ -575,6 +590,13 @@ function main() {
         }, 30 * 60 * 1000);//exit() after 30min
     });
 
+
+
+
+
+    unlock();
+    checkPass();
+    checkLogin();
 
     var popupMonitor = threads.start(function () {
         console.log("开启弹窗监控进程...");
@@ -599,8 +621,6 @@ function main() {
         }
     });
 
-    unlock();
-    checkLogin();
     enterMyMainPage();
     getFriendsEng();
 
@@ -620,8 +640,9 @@ function main() {
 
 }
 
+AntUtil.checkUpdate();
 
-main();
+// main();
 // checkLogin();
 // clickAllEngBts(false);
 
