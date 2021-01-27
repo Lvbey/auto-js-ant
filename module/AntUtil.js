@@ -110,11 +110,6 @@ AntUtil.checkUpdate = function (normalCallback) {
         // files.create();
         files.writeBytes(file, bytes);
 
-        setTimeout(function () {
-            console.log("更新完成，延迟执行RunAnt.js...");
-            engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
-        }, 5000);
-
         //目前github无法获取单个文件，所以版本号是需要下载zip包解压和本地文件判读那
         var tmp = AntConfig.WorkDirPath + "/tmp";
         _this.Unzip(file, tmp, false);//解压到临时文件夹，判断版本号
@@ -124,8 +119,13 @@ AntUtil.checkUpdate = function (normalCallback) {
         console.log("本地版本：" + localVersion + "，远程版本：" + remoteVersion);
 
         if (localVersion != remoteVersion) {
+            setTimeout(function () {
+                console.log("更新完成，延迟执行RunAnt.js...");
+                engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
+            }, 5000);
             _this.Unzip(file, AntConfig.WorkDirPath + "/../", false);//解压即覆盖
-            _this.tLog("更新到最新版本完成");
+            _this.tLog("更新到最新版本完成，退出程序");
+            exit();
         } else {
             toast("已经是最新版本了");
             if (normalCallback) {
