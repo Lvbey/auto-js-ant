@@ -102,7 +102,7 @@ AntUtil.checkUpdate = function (normalCallback) {
         }
     });
     if (res.statusCode >= 200 && res.statusCode < 300) {
-        // toast("文件获取成功!");
+        _this.tLog("获取新版文件信息!");
         var bytes = res.body.bytes();
         // _this.tLog("相应内容类型："+res.body.contentType +",bytes长度:"+bytes.length);
 
@@ -119,10 +119,11 @@ AntUtil.checkUpdate = function (normalCallback) {
         var tmp = AntConfig.WorkDirPath + "/tmp";
         _this.Unzip(file, tmp, false);//解压到临时文件夹，判断版本号
 
+        var localVersion  = files.read(AntConfig.WorkDirPath+"/version");
         var remoteVersion = files.read(tmp+"/auto-js-ant-release/version");
-        console.log("本地版本：" + AntConfig.VersionNow + "，远程版本：" + remoteVersion);
+        console.log("本地版本：" + localVersion + "，远程版本：" + remoteVersion);
 
-        if (AntConfig.VersionNow != remoteVersion) {
+        if (localVersion != remoteVersion) {
             _this.Unzip(file, AntConfig.WorkDirPath + "/../", false);//解压即覆盖
             _this.tLog("更新到最新版本完成");
         } else {
