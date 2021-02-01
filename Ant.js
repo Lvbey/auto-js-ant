@@ -151,7 +151,6 @@ var tLog = AntUtil.tLog;
 
 
 
-
 /**
  * 等待加载收集能量页面,采用未找到指定组件阻塞的方式,等待页面加载完成
  */
@@ -455,6 +454,11 @@ function checkLogin() {
         sleep(5000);
         text("登录").findOne().click();
         sleep(2000);
+
+        if(text("开通指纹登录").exists()){
+            text("关闭").findOne().click();
+        }
+
         console.log("重新登录完成");
     }
 
@@ -539,35 +543,6 @@ function unlock() {
     }
 }
 
-function checkNetwork() {
-
-    (function () {
-        let request = http.request;
-        // 覆盖http关键函数request，其他http返回最终会调用这个函数
-        http.request = function () {
-            try {
-                // 捕捉所有异常
-                return request.apply(http, arguments);
-            } catch (e) {
-                // 出现异常返回null
-                console.error(e);
-                return null;
-            }
-        }
-    })();
-
-    //设置超时为10秒
-    http.__okhttp__.setTimeout(10000);
-    var r = http.get("www.baidu.com");
-    if (r != null && r.statusCode + "" == "200") {
-        console.log("网络通畅");
-        return true;
-    } else {
-        console.log("网络不通");
-        return false;
-    }
-}
-
 
 function main() {
 
@@ -629,10 +604,10 @@ function main() {
 
 }
 
+
 // AntUtil.checkUpdate();
 // 
 main();
 // checkLogin();
 // clickAllEngBts(false);
-
 
