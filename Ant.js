@@ -1,5 +1,6 @@
 var AntUtil = require("./module/AntUtil.js");
 
+
 auto();
 requestScreenCapture();
 
@@ -49,6 +50,11 @@ var availableYStart = maxHeight * availableMinYR; //328
 var availableYEnd = maxHeight * availableMaxYR;//520
 var availableWidth = availableXEnd - availableXStart;
 var availableHeight = availableYEnd - availableYStart;
+
+var useEngDoubleCard = false;
+var useEngDoubleCardSchedule = [1,2,3,4,5,6,0];
+
+var engBallDoubleClick = false;
 
 
 var watering_list = [];
@@ -369,6 +375,11 @@ function clickAllEngBts(self) {
         ballsPos.forEach(function (pos) {
             clickPos(pos, 1000);
             clickPos(pos, 200);
+            if(engBallDoubleClick){//双击
+                clickPos(pos, 1000);
+                clickPos(pos, 200);
+            }
+            
         });
 
         if (watering_list.indexOf(friend_name) >= 0 && !self) {
@@ -495,8 +506,58 @@ function enterMyMainPage() {
 
 }
 
+function f_useEngDoubleCard(){
+    var runCount = AntUtil.storage.getRunCountToday();
+    console.log("当前第"+runCount+"次运行程序");
+    if(runCount>0){
+        console.log("能量双击卡只能在每天第一次运行时才能使用");
+        engBallDoubleClick = false;
+        return ;
+    }
+
+
+    if(!useEngDoubleCard){
+        console.log("没有开启使用能量双击卡开关");
+        return ;
+    }
+
+    var nowWeekNum = AntUtil.getNowWeekNum();
+    if(useEngDoubleCardSchedule.indexOf(nowWeekNum) < 0){
+        console.log("当前星期序号："+nowWeekNum+"，不在使用能量双击卡执行计划范围["+useEngDoubleCardSchedule+"]内");
+        return;
+    }
+
+    sleep(1000);
+    clickPos(new Pos(152,1041)); //背包
+    sleep(2000);
+    var engCard = text("能量双击卡").findOne();
+    if(engCard){
+        engCard.parent().children().forEach(function (child) {
+            var textstr = child.text();
+            
+            if (typeof (textstr) === "string" && textstr.indexOf("使用") >= 0) {
+                console.log(child.click());
+                //立即使用
+                sleep(1000);
+                if(text("立即使用").exists()){
+                    console.log("使用了能量双击卡");
+                    text("立即使用").findOne().click();
+                    AntUtil.storage.setRunCountToday(runCount+1);
+                    engBallDoubleClick = true;
+                }
+            }
+        });
+    }else{
+        console.log("没有能量双击卡");
+        engBallDoubleClick = false;
+    }
+}
 
 function getFriendsEng() {
+
+    f_useEngDoubleCard();//判断是否使用能量双击卡
+
+
     continueFlag = true;
 
     while (continueFlag) {
@@ -629,10 +690,16 @@ function main() {
 
 }
 
+main();
+
+
+
 // AntUtil.checkUpdate();
 // 
-main();
 // checkLogin();
 // clickAllEngBts(false);
+
+
+
 
 

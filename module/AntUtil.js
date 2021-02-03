@@ -2,7 +2,47 @@ var AntConfig = require("./AntConfig.js");
 
 var AntUtil = {};
 
+//0是周日，剩下1-6匹配
+AntUtil.getNowWeekNum() = function(){
+    return new Date().getDay();
+}
+//判断当前时间是不是周末
+AntUtil.isNowWeekend = function (){
+    var weekDay = this.getNowWeekNum();
+    if(weekDay== 6 || weekDay == 0){
+        return true;
+    }
+    return false;
+}
+AntUtil.date.yestoday = function(day){
+    return new Date(day.getTime()-24*60*60*1000);
+}
+AntUtil.date.getDateStr = function(day){
+    var day2 = new Date();
+    day2.setTime(day.getTime());
+    var s2 = day2.getFullYear()+"-" + (day2.getMonth()+1) + "-" + day2.getDate();
+    return s2;
+}
 
+AntUtil.storage.removeYestoday = function(){
+    var storage = this.getStorage();
+    var yestodayStr = this.date.getDateStr(this.yestoday(new Date()));
+    console.log("移除"+storage+"的"+yestodayStr);
+    storage.remove(yestodayStr);
+}
+
+AntUtil.storage.setRunCountToday = function(runCount){
+    var storage = this.getStorage();
+    storage.put(this.date.getDateStr(new Date()), runCount);
+}
+AntUtil.storage.getRunCountToday = function () {
+    var storage = this.getStorage();
+    var runCount = storage.get(this.date.getDateStr(new Date()), 0);
+    if(runCount == 0){
+        this.removeYestoday();
+    }
+    return runCount;
+}
 AntUtil.storage = {}
 AntUtil.storage.getStorage = function () {
     return storages.create(AntConfig.StorageName);
