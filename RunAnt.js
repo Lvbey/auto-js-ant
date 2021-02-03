@@ -9,7 +9,6 @@ var AntUtil = require("./module/AntUtil.js");
 
 AntUtil.checkUpdate(
     function () {
-        console.log("无需更新时，正常执行");
         engines.execScriptFile("./" + AntConfig.ExescriptFileName);
     }
 

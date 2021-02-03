@@ -168,16 +168,15 @@ AntUtil.checkUpdate = function (normalCallback) {
         if (localVersion != remoteVersion) {
             setTimeout(function () {
                 console.log("更新完成，延迟执行RunAnt.js...");
-
             }, 5000);
             
             _this.Unzip(file, AntConfig.WorkDirPath + "/../", false);//解压即覆盖
-            _this.tLog("更新到最新版本完成，退出程序");
+            _this.tLog("更新到最新版本完成");
             engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
             exit();
             
         } else {
-            toast("已经是最新版本了");
+            toast("已是最新版本了");
             if (normalCallback) {
                 normalCallback();
             }
@@ -192,7 +191,36 @@ AntUtil.checkUpdate = function (normalCallback) {
 }
 
 
+/* 
+AntUtil.checkNetwork = function() {
 
+    (function () {
+        let request = http.request;
+        // 覆盖http关键函数request，其他http返回最终会调用这个函数
+        http.request = function () {
+            try {
+                // 捕捉所有异常
+                return request.apply(http, arguments);
+            } catch (e) {
+                // 出现异常返回null
+                console.error(e);
+                return null;
+            }
+        }
+    })();
+
+    //设置超时为10秒
+    http.__okhttp__.setTimeout(10000);
+    var r = http.get("www.baidu.com");
+    if (r != null && r.statusCode + "" == "200") {
+        console.log("网络通畅");
+        return true;
+    } else {
+        console.log("网络不通");
+        return false;
+    }
+}
+ */
 
 AntUtil.Unzip = function (input_path, output_path, within_folder, dialog) {
     // delete global._$_dialog_streaming_intrp_sgn;
