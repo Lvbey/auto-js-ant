@@ -623,7 +623,7 @@ function main() {
     checkPass();
 
 
-    // checkLogin();
+    checkLogin();
 
     var popupMonitor = threads.start(function () {
         console.log("开启弹窗监控进程...");
