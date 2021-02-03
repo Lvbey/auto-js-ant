@@ -51,8 +51,8 @@ var availableYEnd = maxHeight * availableMaxYR;//520
 var availableWidth = availableXEnd - availableXStart;
 var availableHeight = availableYEnd - availableYStart;
 
-var useEngDoubleCard = false;
-var useEngDoubleCardSchedule = [1,2,3,4,5,6,0];
+var useEngDoubleCard = true;
+var useEngDoubleCardSchedule = [6,0];
 
 var engBallDoubleClick = false;
 
@@ -508,12 +508,13 @@ function enterMyMainPage() {
 
 function f_useEngDoubleCard(){
     var runCount = AntUtil.storage.getRunCountToday();
-    console.log("当前第"+runCount+"次运行程序");
+    console.log("当前第"+(runCount+1)+"次运行程序");
     if(runCount>0){
         console.log("能量双击卡只能在每天第一次运行时才能使用");
         engBallDoubleClick = false;
         return ;
     }
+    AntUtil.storage.setRunCountToday(runCount+1);
 
 
     if(!useEngDoubleCard){
@@ -521,7 +522,7 @@ function f_useEngDoubleCard(){
         return ;
     }
 
-    var nowWeekNum = AntUtil.getNowWeekNum();
+    var nowWeekNum = AntUtil.owndate.getNowWeekNum();
     if(useEngDoubleCardSchedule.indexOf(nowWeekNum) < 0){
         console.log("当前星期序号："+nowWeekNum+"，不在使用能量双击卡执行计划范围["+useEngDoubleCardSchedule+"]内");
         return;
@@ -542,7 +543,6 @@ function f_useEngDoubleCard(){
                 if(text("立即使用").exists()){
                     console.log("使用了能量双击卡");
                     text("立即使用").findOne().click();
-                    AntUtil.storage.setRunCountToday(runCount+1);
                     engBallDoubleClick = true;
                 }
             }
@@ -646,7 +646,9 @@ function main() {
 
     unlock();
     checkPass();
-    checkLogin();
+
+
+    // checkLogin();
 
     var popupMonitor = threads.start(function () {
         console.log("开启弹窗监控进程...");
@@ -674,7 +676,6 @@ function main() {
     enterMyMainPage();
     getFriendsEng();
 
-    ///closeApp(aliPackagename);
 
     events.on('exit', function () {
         //停止线程执行
@@ -690,10 +691,10 @@ function main() {
 
 }
 
-main();
 
 
-
+getFriendsEng();
+// main();
 // AntUtil.checkUpdate();
 // 
 // checkLogin();
