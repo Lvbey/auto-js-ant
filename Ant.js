@@ -106,7 +106,7 @@ Pos.prototype = {
     }
 }
 
-
+var reLoginHeadImgPos= new Pos(360, 550);
 
 //坐标点相对于屏幕的比例
 function PosR(wr, hr) {
@@ -431,7 +431,7 @@ function checkPass(){
     }
 }
 
-
+var needrelogin = true;//默认是需要登录的
 function checkLogin() {
 
     console.log("开启重登陆检测");
@@ -440,29 +440,38 @@ function checkLogin() {
     tLog("等待支付宝启动");
     sleep(2000);
 
-    var anacc = text("换个账号登录").findOne(5000);
-
-    var needrelogin = false;
-
+    var anacc = textContains("点击下方头像登录").findOne(15000);
     if (anacc != null) {
-        needrelogin = true;
-        clickPos(new Pos(360, 550), 500);
+        clickPos(reLoginHeadImgPos, 250);
+        tLog("点击头像框");
+        sleep(2000);
     } else {
-
         //账号在其他设备登录
         //判断账号在其他设备登录
-        var loginErrmsg = text("账号在其他设备登录").findOne(20000);//等待回调页面完成 20s
+        var loginErrmsg = text("账号在其他设备登录").findOne(5000);
         if (loginErrmsg != null) {
-            needrelogin = true;
             text("好的").findOne().click();
+        }else{
+            //直接在登录界面
         }
-
     }
+    
+
+
+    //如果需要登录，必须保证此时已经抵达输入密码的界面
     if (needrelogin) {
         console.log("需要重新登录");
-        sleep(5000);
+        sleep(2000);
+        var acct = textContains("账号").findOne(10000);
+        var pass = textContains("密码").findOne(10000);
+        if(pass != null && acct!=null){
+            tLog("准备输入密码");
+            var rect = pass.bounds();
+            clickPos(new Pos(rect.centerX()+rect.width()*5,rect.centerY()));
+        }
+
         Text(AntUtil.storage.getPassByStorage());
-        sleep(5000);
+        sleep(3000);
         text("登录").findOne().click();
         sleep(2000);
 
@@ -470,8 +479,13 @@ function checkLogin() {
             text("关闭").findOne().click();
         }
 
-        console.log("重新登录完成");
+        var homeBtn = text("首页").findOne(5000);//等待回调页面完成
+        if (homeBtn != null) {
+            tLog("重新登录完成");
+        }
+
     }
+    
 
 }
 
@@ -669,7 +683,5 @@ function main() {
 main();
 
 
-// AntUtil.checkUpdate();
-// 
 // checkLogin();
-// clickAllEngBts(false);
+
