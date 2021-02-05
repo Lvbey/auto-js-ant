@@ -440,6 +440,16 @@ function checkLogin() {
     tLog("等待支付宝启动");
     sleep(2000);
 
+    //先花1几秒判断是否登录了
+    var homeBtn = text("首页").findOne(5000);//等待回调页面完成
+    if (homeBtn != null) {
+        console.log("在首页...");
+        return ;
+    }
+
+
+
+
     var anacc = textContains("点击下方头像登录").findOne(15000);
     if (anacc != null) {
         clickPos(reLoginHeadImgPos, 250);
