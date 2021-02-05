@@ -34,6 +34,12 @@ AntUtil.storage.removeYestoday = function(){
     console.log("移除"+storage+"的"+yestodayStr);
     storage.remove(yestodayStr);
 }
+AntUtil.storage.removetoday = function(){
+    var storage = this.getStorage();
+    var todayStr = AntUtil.owndate.getDateStr(new Date());
+    console.log("移除"+storage+"的"+todayStr);
+    storage.remove(todayStr);
+}
 
 AntUtil.storage.setRunCountToday = function(runCount){
     var storage = this.getStorage();

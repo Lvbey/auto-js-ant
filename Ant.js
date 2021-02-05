@@ -440,6 +440,16 @@ function checkLogin() {
     tLog("等待支付宝启动");
     sleep(2000);
 
+    //先花1几秒判断是否登录了
+    var homeBtn = text("首页").findOne(5000);//等待回调页面完成
+    if (homeBtn != null) {
+        tLog("在首页，无需重新登录");
+        return ;
+    }
+
+
+
+
     var anacc = textContains("点击下方头像登录").findOne(15000);
     if (anacc != null) {
         clickPos(reLoginHeadImgPos, 250);
@@ -532,7 +542,7 @@ function enterMyMainPage() {
 
 function f_useEngDoubleCard(){
     var runCount = AntUtil.storage.getRunCountToday();
-    console.log("当前第"+(runCount+1)+"次运行程序");
+    console.log("今日第"+(runCount+1)+"次运行程序");
     if(runCount>0){
         console.log("能量双击卡只能在每天第一次运行时才能使用");
         engBallDoubleClick = false;
@@ -691,3 +701,4 @@ main();
 
 // checkLogin();
 
+// AntUtil.storage.removetoday();
