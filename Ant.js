@@ -489,9 +489,9 @@ function checkLogin() {
         Text(AntUtil.storage.getPassByStorage());
         sleep(3000);
         text("登录").findOne().click();
-        sleep(2000);
-
-        if(text("开通指纹登录").exists()){
+        sleep(3000);
+        var fBtn = text("开通指纹登录").findOne(5000);
+        if (fBtn != null) {
             text("关闭").findOne().click();
         }
 
