@@ -140,6 +140,8 @@ AntUtil.OverrideFiles = function (srcDir, DesDir) {
 }
 
 AntUtil.checkUpdate = function (normalCallback) {
+    var retryTimes = 3;
+
     var _this = this;
     // var remoteVersion = AntUtil._getRemoteVersion();
     // console.log("本地版本：" + AntConfig.VersionNow + "，远程版本："+remoteVersion);
@@ -147,13 +149,45 @@ AntUtil.checkUpdate = function (normalCallback) {
     // console.log("需要更新");
 
     var downloadUrl = AntConfig.DownloadUrl;
-    var res = http.get(downloadUrl, {
-        headers: {
-            'Accept-Language': 'zh-cn,zh;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'User-Agent': 'Mozilla/5.0(Macintosh;IntelMacOSX10_7_0)AppleWebKit/535.11(KHTML,likeGecko)Chrome/17.0.963.56Safari/535.11'
+
+    (function () {
+        let request = http.request;
+        // 覆盖http关键函数request，其他http返回最终会调用这个函数
+        http.request = function () {
+            try {
+                // 捕捉所有异常
+                return request.apply(http, arguments);
+            } catch (e) {
+                // 出现异常返回null
+                console.error(e);
+                return null;
+            }
         }
-    });
+    })();
+    //设置超时为10秒
+    http.__okhttp__.setTimeout(10000);
+
+
+    for(var i = 0; i < retryTimes; i++){
+        var res = http.get(downloadUrl, {
+            headers: {
+                'Accept-Language': 'zh-cn,zh;q=0.5',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'User-Agent': 'Mozilla/5.0(Macintosh;IntelMacOSX10_7_0)AppleWebKit/535.11(KHTML,likeGecko)Chrome/17.0.963.56Safari/535.11'
+            }
+        });
+
+        if(res == null)  {
+            _this.tLog("无法连接网络，即将重试");
+            exit();
+        }else{
+            retryTimes = 0;
+        }
+    }
+
+
+
+
     if (res.statusCode >= 200 && res.statusCode < 300) {
         _this.tLog("获取新版文件信息!");
         var bytes = res.body.bytes();
@@ -190,9 +224,6 @@ AntUtil.checkUpdate = function (normalCallback) {
 
     } else if (res != null) {
         _this.tLog(res);
-    } else {
-        _this.tLog("无法连接网络");
-        exit();
     }
 }
 
