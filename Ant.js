@@ -52,7 +52,10 @@ var availableWidth = availableXEnd - availableXStart;
 var availableHeight = availableYEnd - availableYStart;
 
 var useEngDoubleCard = true;
-var useEngDoubleCardSchedule = [6,0];
+var useEngDoubleCardSchedule = [6,0,1,2,3,4,5];
+//7点10分之后
+var useEngDoubleCardScheduleStartTimeHour=7;
+var useEngDoubleCardScheduleStartTimeMin=10;
 
 var engBallDoubleClick = false;
 
@@ -555,15 +558,16 @@ function enterMyMainPage() {
 
 }
 
+var globalRunCount = 1;
 function f_useEngDoubleCard(){
     var runCount = AntUtil.storage.getRunCountToday();
     console.log("今日第"+(runCount+1)+"次运行程序");
-    if(runCount>0){
-        console.log("能量双击卡只能在每天第一次运行时才能使用");
+    if(runCount>1){
+        console.log("能量双击卡只能每天运行两次");
         engBallDoubleClick = false;
         return ;
     }
-    AntUtil.storage.setRunCountToday(runCount+1);
+    
 
 
     if(!useEngDoubleCard){
@@ -576,6 +580,20 @@ function f_useEngDoubleCard(){
         console.log("当前星期序号："+nowWeekNum+"，不在使用能量双击卡执行计划范围["+useEngDoubleCardSchedule+"]内");
         return;
     }
+
+    //判断当前时间是不是在执行时间后面
+    if(AntUtil.owndate.getNowHour() == useEngDoubleCardScheduleStartTimeHour &&
+        AntUtil.owndate.getNowMin() >= useEngDoubleCardScheduleStartTimeMin  &&
+        runCount <= (globalRunCount -1)
+        
+        ){
+            console.log("当前时间在指定执行时间之后,并且执行次数小于配置次数");
+    }else{
+        return;
+    }
+
+
+
 
     sleep(1000);
     clickPos(new Pos(152,1041)); //背包
@@ -593,6 +611,7 @@ function f_useEngDoubleCard(){
                     console.log("使用了能量双击卡");
                     text("立即使用").findOne().click();
                     engBallDoubleClick = true;
+                    AntUtil.storage.setRunCountToday(runCount+1);
                 }
             }
         });

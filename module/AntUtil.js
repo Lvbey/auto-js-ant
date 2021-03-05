@@ -4,6 +4,12 @@ var AntUtil = {};
 AntUtil.owndate = {};
 AntUtil.storage = {}
 
+AntUtil.owndate.getNowMin = function(){
+    return new Date().getMinutes();
+}
+AntUtil.owndate.getNowHour = function(){
+    return new Date().getHours();
+}
 
 
 //0是周日，剩下1-6匹配
