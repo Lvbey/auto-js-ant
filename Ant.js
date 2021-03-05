@@ -93,6 +93,8 @@ function getIndexByName(name) {
 }
 
 var continueFlag = true;
+var notReloginThisTime = false;//本次是否没有重登陆
+
 
 //坐标点
 function Pos(x, y) {
@@ -444,6 +446,8 @@ function checkLogin() {
     var homeBtn = text("首页").findOne(5000);//等待回调页面完成
     if (homeBtn != null) {
         tLog("在首页，无需重新登录");
+        notReloginThisTime = true;
+        //开启弹窗监控线程
         return ;
     }
 
@@ -683,6 +687,26 @@ function main() {
                     var closeBtn = _pop.parent().child(1);
                     console.log("检测到有弹窗(多A)，执行关闭操作...");
                     closeBtn.click();
+                }
+            }
+
+
+            var fBtn = text("开通指纹登录").findOne(5000);
+            if (fBtn != null) {
+                console.log("点击【开通指纹登录-关闭】")
+                text("关闭").findOne().click();
+            }
+
+            //var notReloginThisTime = false;//本次是否没有重登陆
+
+            if(notReloginThisTime){//本次没有重登陆
+                
+                var loginErrmsg2 = text("账号在其他设备登录").findOne(2000);
+                var anacc = textContains("点击下方头像登录").findOne(2000);
+
+                if (loginErrmsg2 != null || anacc != null) {
+                    console.log("多线程检测到需要重新登录，即将退出程序");
+                    exit();
                 }
             }
             sleep(2000);
