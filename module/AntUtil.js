@@ -179,10 +179,12 @@ AntUtil.checkUpdate = function (normalCallback) {
 
         if(res == null)  {
             _this.tLog("无法连接网络，即将重试");
+
             if(i == retryTimes-1){
                 _this.tLog("已重试"+(i+1)+"次，无法连接网络，即将退出程序。");
                 exit();
             }
+
         }else{
             retryTimes = 0;
         }
