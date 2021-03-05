@@ -440,7 +440,7 @@ function checkLogin() {
     tLog("等待支付宝启动");
     sleep(2000);
 
-    //先花1几秒判断是否登录了
+    //先花几秒判断是否登录了
     var homeBtn = text("首页").findOne(5000);//等待回调页面完成
     if (homeBtn != null) {
         tLog("在首页，无需重新登录");
@@ -456,11 +456,19 @@ function checkLogin() {
         tLog("点击头像框");
         sleep(2000);
         needrelogin = true;
+
+        var loginErrmsg = text("账号在其他设备登录").findOne(5000);
+        if (loginErrmsg != null) {
+            console.log("点击【账号在其他设备登录-好的】")
+            text("好的").findOne().click();
+        }
+
     } else {
         //账号在其他设备登录
         //判断账号在其他设备登录
         var loginErrmsg = text("账号在其他设备登录").findOne(5000);
         if (loginErrmsg != null) {
+            console.log("点击【账号在其他设备登录-好的】")
             text("好的").findOne().click();
             needrelogin = true;
         }else{
@@ -488,10 +496,13 @@ function checkLogin() {
 
         Text(AntUtil.storage.getPassByStorage());
         sleep(3000);
+        console.log("点击【登录】")
         text("登录").findOne().click();
         sleep(3000);
+
         var fBtn = text("开通指纹登录").findOne(5000);
         if (fBtn != null) {
+            console.log("点击【开通指纹登录-关闭】")
             text("关闭").findOne().click();
         }
 
