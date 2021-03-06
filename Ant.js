@@ -558,10 +558,10 @@ function enterMyMainPage() {
 
 }
 
-var globalRunCount = 1;
+var globalRunCount = 1;//配置需要运行的次数
 function f_useEngDoubleCard(){
     var runCount = AntUtil.storage.getRunCountToday();
-    console.log("今日第"+(runCount+1)+"次运行程序");
+    console.log("今日已运行能量双击卡"+(runCount)+"次");
 
     if(!useEngDoubleCard){
         console.log("没有开启使用能量双击卡开关，放弃能量双击卡");
