@@ -1,5 +1,5 @@
 var AntUtil = require("./module/AntUtil.js");
-
+var AntConfig = require("./module/AntConfig.js");
 
 auto();
 requestScreenCapture();
@@ -562,43 +562,34 @@ var globalRunCount = 1;
 function f_useEngDoubleCard(){
     var runCount = AntUtil.storage.getRunCountToday();
     console.log("今日第"+(runCount+1)+"次运行程序");
-    if(runCount>1){
-        console.log("能量双击卡只能每天运行两次");
-        engBallDoubleClick = false;
-        return ;
-    }
-    
-
 
     if(!useEngDoubleCard){
-        console.log("没有开启使用能量双击卡开关");
+        console.log("没有开启使用能量双击卡开关，放弃能量双击卡");
         return ;
     }
 
     var nowWeekNum = AntUtil.owndate.getNowWeekNum();
     if(useEngDoubleCardSchedule.indexOf(nowWeekNum) < 0){
-        console.log("当前星期序号："+nowWeekNum+"，不在使用能量双击卡执行计划范围["+useEngDoubleCardSchedule+"]内");
+        console.log("当前星期序号："+nowWeekNum+"，不在使用能量双击卡执行计划范围["+useEngDoubleCardSchedule+"]内，放弃能量双击卡");
         return;
     }
 
     //判断当前时间是不是在执行时间后面
     if(AntUtil.owndate.getNowHour() == useEngDoubleCardScheduleStartTimeHour &&
         AntUtil.owndate.getNowMin() >= useEngDoubleCardScheduleStartTimeMin  &&
-        runCount <= (globalRunCount -1)
+        runCount <= (globalRunCount - 1)
         
         ){
-            console.log("当前时间在指定执行时间之后,并且执行次数小于配置次数");
+            console.log("当前时间在指定执行时间之后,并且执行次数小于配置次数，可以使用能量双击卡");
     }else{
+        console.log("当前时间在不在指定执行范围，放弃能量双击卡");
         return;
     }
 
 
-
-
     sleep(1000);
     clickPos(new Pos(152,1041)); //背包
-    sleep(2000);
-    var engCard = text("能量双击卡").findOne();
+    var engCard = text("能量双击卡").findOne(5000);
     if(engCard){
         engCard.parent().children().forEach(function (child) {
             var textstr = child.text();
@@ -610,13 +601,14 @@ function f_useEngDoubleCard(){
                 if(text("立即使用").exists()){
                     console.log("使用了能量双击卡");
                     text("立即使用").findOne().click();
+                    sleep(5000);
                     engBallDoubleClick = true;
                     AntUtil.storage.setRunCountToday(runCount+1);
                 }
             }
         });
     }else{
-        console.log("没有能量双击卡");
+        console.log("背包里面没有能量双击卡");
         engBallDoubleClick = false;
     }
 }
@@ -724,7 +716,8 @@ function main() {
                 var anacc = textContains("点击下方头像登录").findOne(2000);
 
                 if (loginErrmsg2 != null || anacc != null) {
-                    console.log("多线程检测到需要重新登录，即将退出程序");
+                    console.log("多线程检测到需要重新登录，即将重新启动");
+                    engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
                     exit();
                 }
             }
