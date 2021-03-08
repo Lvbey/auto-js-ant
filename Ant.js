@@ -509,8 +509,10 @@ function checkLogin() {
 
         var fBtn = text("开通指纹登录").findOne(5000);
         if (fBtn != null) {
-            console.log("点击【开通指纹登录-关闭】")
-            text("关闭").findOne().click();
+            console.log("点击【开通指纹登录-关闭】");
+            var tcloseBtn = text("关闭").findOne().bounds();
+            clickPos(new Pos(tcloseBtn.centerX(),tcloseBtn.centerY()));
+
         }
 
         var homeBtn = text("首页").findOne(5000);//等待回调页面完成
@@ -704,8 +706,9 @@ function main() {
 
             var fBtn = text("开通指纹登录").findOne(5000);
             if (fBtn != null) {
-                console.log("点击【开通指纹登录-关闭】")
-                text("关闭").findOne().click();
+                console.log("多线程检测到需要点击【开通指纹登录-关闭】")
+                var tcloseBtn = text("关闭").findOne().bounds();
+                clickPos(new Pos(tcloseBtn.centerX(),tcloseBtn.centerY()));
             }
 
             //var notReloginThisTime = false;//本次是否没有重登陆
