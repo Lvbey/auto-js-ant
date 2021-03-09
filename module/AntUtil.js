@@ -150,7 +150,7 @@ AntUtil.checkUpdate = function (normalCallback) {
 
 
     _this.tLog("准备检查更新");
-    var retryTimes = 3;
+    
 
     // var remoteVersion = AntUtil._getRemoteVersion();
     // console.log("本地版本：" + AntConfig.VersionNow + "，远程版本："+remoteVersion);
@@ -177,7 +177,27 @@ AntUtil.checkUpdate = function (normalCallback) {
     http.__okhttp__.setTimeout(10000);
 
 
+    var retryTimes = 3;
     for(var i = 0; i < retryTimes; i++){
+        var r = http.get("www.baidu.com");
+        if (r != null && r.statusCode + "" == "200") {
+            console.log("网络通畅");
+            retryTimes = 0;
+            break;
+        } else {
+            _this.tLog("无法连接网络，即将重试");
+            if(i == retryTimes-1){
+                _this.tLog("已重试"+(i+1)+"次，无法连接网络，即将退出程序。");
+                exit();
+            }
+        }
+    }
+
+
+    var appRetryTimes = 3;
+    for(var i = 0; i < appRetryTimes; i++){
+        //到这里应该有网络，但是更新可能会失败，失败的话，执行本地程序
+
         var res = http.get(downloadUrl, {
             headers: {
                 'Accept-Language': 'zh-cn,zh;q=0.5',
@@ -187,15 +207,16 @@ AntUtil.checkUpdate = function (normalCallback) {
         });
 
         if(res == null)  {
-            _this.tLog("无法连接网络，即将重试");
+            _this.tLog("目标网站可能无法访问，即将重试");
 
-            if(i == retryTimes-1){
-                _this.tLog("已重试"+(i+1)+"次，无法连接网络，即将退出程序。");
+            if(i == appRetryTimes-1){
+                _this.tLog("已重试"+(i+1)+"次，无法更新程序，使用本地文件执行。");
+                engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
                 exit();
             }
 
         }else{
-            retryTimes = 0;
+            appRetryTimes = 0;
         }
     }
 
