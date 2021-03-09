@@ -96,7 +96,7 @@ function getIndexByName(name) {
 }
 
 var continueFlag = true;
-var notReloginThisTime = false;//本次是否没有重登陆
+var continueCheckLogin = true;//是否需要检测是否需要重登陆
 
 
 //坐标点
@@ -439,22 +439,17 @@ function checkPass(){
 var needrelogin = false;//默认是不需要登录的
 function checkLogin() {
 
-    console.log("开启重登陆检测");
     launchApp("支付宝");
 
     tLog("等待支付宝启动");
-    sleep(2000);
 
     //先花几秒判断是否登录了
     var homeBtn = text("首页").findOne(5000);//等待回调页面完成
     if (homeBtn != null) {
-        tLog("在首页，无需重新登录");
-        notReloginThisTime = true;
-        //开启弹窗监控线程
+        tLog("在首页，即将进入蚂蚁森林");
+        //当然可能重登陆会有延迟，但是多线程会检测是否需要重登陆
         return ;
     }
-
-
 
 
     var anacc = textContains("点击下方头像登录").findOne(15000);
@@ -463,6 +458,7 @@ function checkLogin() {
         tLog("点击头像框");
         sleep(2000);
         needrelogin = true;
+        continueCheckLogin = false;
 
         var loginErrmsg = text("账号在其他设备登录").findOne(5000);
         if (loginErrmsg != null) {
@@ -478,12 +474,15 @@ function checkLogin() {
             console.log("点击【账号在其他设备登录-好的】")
             text("好的").findOne().click();
             needrelogin = true;
+            continueCheckLogin = false;
+            
         }else{
             //直接在登录界面
             var acct = textContains("账号").findOne(5000);
             var pass = textContains("密码").findOne(5000);
             if(pass != null && acct!=null){
                 needrelogin = true;
+                continueCheckLogin = false;
             }
         }
     }
@@ -491,6 +490,9 @@ function checkLogin() {
 
     //如果需要登录，必须保证此时已经抵达输入密码的界面
     if (needrelogin) {
+
+        continueCheckLogin = false;
+
         console.log("需要重新登录");
         sleep(2000);
         var acct = textContains("账号").findOne(10000);
@@ -617,6 +619,10 @@ function f_useEngDoubleCard(){
 
 function getFriendsEng() {
 
+    continueCheckLogin = false;
+    //开启弹窗监控线程
+
+
     f_useEngDoubleCard();//判断是否使用能量双击卡
 
 
@@ -703,17 +709,17 @@ function main() {
                 }
             }
 
-
-            var fBtn = text("开通指纹登录").findOne(5000);
-            if (fBtn != null) {
-                console.log("多线程检测到需要点击【开通指纹登录-关闭】")
-                var tcloseBtn = text("关闭").findOne().bounds();
-                clickPos(new Pos(tcloseBtn.centerX(),tcloseBtn.centerY()));
-            }
-
             //var notReloginThisTime = false;//本次是否没有重登陆
 
-            if(notReloginThisTime){//本次没有重登陆
+            if(continueCheckLogin){//需要重登陆弹窗监控线程
+                console.log("重登陆检测任务运行中");
+                var fBtn = text("开通指纹登录").findOne(5000);
+                if (fBtn != null) {
+                    console.log("多线程检测到需要点击【开通指纹登录-关闭】")
+                    var tcloseBtn = text("关闭").findOne().bounds();
+                    clickPos(new Pos(tcloseBtn.centerX(),tcloseBtn.centerY()));
+                }
+
                 
                 var loginErrmsg2 = text("账号在其他设备登录").findOne(2000);
                 var anacc = textContains("点击下方头像登录").findOne(2000);
@@ -723,8 +729,15 @@ function main() {
                     engines.execScriptFile(AntConfig.WorkDirPath + "/RunAnt.js");
                     exit();
                 }
+
+
+            }else{
+                console.log("重登陆检测任务已经关闭");
             }
-            sleep(2000);
+
+
+
+            sleep(5000);
         }
     });
 
