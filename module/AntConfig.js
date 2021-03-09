@@ -7,7 +7,7 @@ AntConfig.ProjectName = "auto-js-ant";
 AntConfig.VersionUrl = "https://gitee.com/Lvbey/auto-js-ant/raw/release/version";
 
 // AntConfig.DownloadUrl = "https://gitee.com/Lvbey/auto-js-ant/repository/archive/release.zip";
-AntConfig.DownloadUrl = "https://www.lvbey.com/attachment/auto-js-ant-release.zip";//"https://github.com/Lvbey/auto-js-ant/archive/release.zip";
+AntConfig.DownloadUrl = "https://www.lvbey.com/attachment/release.zip";//"https://github.com/Lvbey/auto-js-ant/archive/release.zip";
 
 
 AntConfig.StorageName = "auto-js-ant";
