@@ -149,7 +149,7 @@ AntUtil.checkUpdate = function (normalCallback) {
     var _this = this;
 
 
-    _this.log("准备检查更新");
+    _this.tLog("准备检查更新");
     var retryTimes = 3;
 
     // var remoteVersion = AntUtil._getRemoteVersion();
