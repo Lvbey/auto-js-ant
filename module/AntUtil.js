@@ -146,9 +146,12 @@ AntUtil.OverrideFiles = function (srcDir, DesDir) {
 }
 
 AntUtil.checkUpdate = function (normalCallback) {
+    var _this = this;
+
+
+    _this.log("准备检查更新");
     var retryTimes = 3;
 
-    var _this = this;
     // var remoteVersion = AntUtil._getRemoteVersion();
     // console.log("本地版本：" + AntConfig.VersionNow + "，远程版本："+remoteVersion);
     // if(AntConfig.VersionNow != remoteVersion){
@@ -200,7 +203,7 @@ AntUtil.checkUpdate = function (normalCallback) {
 
 
     if (res.statusCode >= 200 && res.statusCode < 300) {
-        _this.tLog("获取新版文件信息!");
+        
         var bytes = res.body.bytes();
         // _this.tLog("相应内容类型："+res.body.contentType +",bytes长度:"+bytes.length);
 
@@ -227,7 +230,7 @@ AntUtil.checkUpdate = function (normalCallback) {
             exit();
             
         } else {
-            toast("已是最新版本了");
+             console.log("已是最新版本了");
             if (normalCallback) {
                 normalCallback();
             }
